@@ -1,0 +1,351 @@
+/*Program to create and perform operations on a binary tree
+Author: Nandagopal*/
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+//defining the structure for each node
+typedef struct node
+{
+        char data[10];
+        struct node *lc;
+        struct node *rc;
+}NODE;
+//stack functions for iterative traversal of tree
+int top=-1;NODE* stack[10];
+void push(NODE *item)
+{
+        if(top==9)
+                printf("Stack overflow");
+        else
+        {
+                top=top+1;
+                stack[top]=item;
+        }
+}
+NODE* pop()
+{
+        NODE *item=(NODE*)malloc(sizeof(NODE));
+        if(top==-1)
+                printf("Stack underflow");
+        else
+        {
+                item=stack[top];
+                top=top-1;
+                return(item);
+        }
+}
+//function for building the binary tree
+void build(NODE *ptr,char x[])
+{
+        int ch;
+        char val[10];
+        NODE *lcptr,*rcptr;
+        if(ptr!=NULL)
+        {
+                strcpy(ptr->data,x);
+                printf("Does %s have a left subtree(1-yes,2-no) ",x);
+                scanf("%d",&ch);
+                if(ch==1)
+                {
+                        lcptr=(NODE*)malloc(sizeof(NODE));
+                        ptr->lc=lcptr;
+                        printf("Enter the value in the left child ");
+                        scanf("%s",val);
+                        build(lcptr,val);
+                }
+                else
+                {
+                        lcptr=NULL;
+                        ptr->lc=NULL;
+                        build(lcptr,NULL);
+  }
+                printf("Does %s have a right subtree(1-yes,2-no) ",x);
+                scanf("%d",&ch);
+                if(ch==1)
+                {
+                        rcptr=(NODE*)malloc(sizeof(NODE));
+                        ptr->rc=rcptr;
+                        printf("Enter the value in the right child ");
+                        scanf("%s",val);
+                        build(rcptr,val);
+                }
+                else
+                {
+                        rcptr=NULL;
+                        ptr->rc=NULL;
+                        build(rcptr,NULL);
+                }
+        }
+        else
+        {
+                printf("");
+        }
+}
+NODE *postordersearch(NODE *root,char key[]);
+void insert(NODE *root,char key[],char item[])
+{
+        NODE *ptr,*new;
+        int ch;
+        ptr=postordersearch(root,key);
+        if(ptr==NULL)
+                printf("\nElement is not found in the tree");
+        else
+        {
+                if(((ptr->lc)==NULL)||(((ptr->rc)==NULL)))
+                {
+                        printf("\nPress\n1.Insert as left child");
+                        printf("\n2.Insert as right child\n");
+                        scanf("%d",&ch);
+                        if(ch==1)
+                        {
+                                if((ptr->lc)==NULL)
+                                {
+                                        new=(NODE*)malloc(sizeof(NODE));
+                                        strcpy((new->data),item);
+                                        new->lc=new->rc=NULL;
+                                        ptr->lc=new;
+                                        printf("\n%s inserted\n",item);
+                                }
+                                else
+                                {
+                                        printf("\nInsertion not possible");
+                                }
+                        }
+                        else
+                        {
+                                if((ptr->rc)==NULL)
+                                {
+                                        new=(NODE*)malloc(sizeof(NODE));
+                                        strcpy((new->data),item);
+                                        new->lc=new->rc=NULL;
+  ptr->rc=new;
+                                        printf("\n%s inserted\n",item);
+                                }
+                                else
+                                {
+                                        printf("\nInsertion not possible");
+                                }
+                        }
+                }
+                else
+                        printf("\nInsertion not possible");
+        }
+}
+NODE* inordersearch(NODE *root,char key[])
+{
+        top=-1;
+        NODE *ptr=root;
+        while((top!=-1)||(ptr!=NULL))
+        {
+                if(ptr!=NULL)
+                {
+                        push(ptr);
+                        ptr=ptr->lc;
+                }
+                else
+                {
+                        ptr=pop();
+                        if(strcmp(ptr->data,key)==0)
+                        {
+                                printf("\nElement found");
+                                return ptr;
+                        }
+                        ptr=ptr->rc;
+                }
+        }
+        printf("\nElement not found");
+        return NULL;
+}
+void inorderprint(NODE *root)
+{
+        NODE *ptr=root;
+        if(ptr!=NULL)
+        {
+                inorderprint(ptr->lc);
+                printf("%s ",ptr->data);
+                inorderprint(ptr->rc);
+        }
+}
+NODE* preordersearch(NODE *root,char item[])
+{
+        NODE *ptr=root;
+        while((top!=-1)||(ptr!=NULL))
+        {
+                if(ptr!=NULL)
+                {
+                        if(strcmp(ptr->data,item)==0)
+                        {
+                                printf("\nElement found");
+                                return(ptr);
+                        }
+ push(ptr);
+                        ptr=ptr->lc;
+                }
+                else
+                {
+                        ptr=pop();
+                        ptr=ptr->rc;
+                }
+        }
+        printf("\nElement not found");
+        return NULL;
+}
+void preorderprint(NODE *root)
+{
+        NODE *ptr=root;
+        if(ptr!=NULL)
+        {
+                printf("%s ",ptr->data);
+                preorderprint(ptr->lc);
+                preorderprint(ptr->rc);
+        }
+}
+NODE *postordersearch(NODE *root,char item[])
+{
+        NODE *ptr=root;
+        NODE *temp;
+        while((top!=-1)||(ptr!=NULL))
+        {
+                if(ptr!=NULL)
+                {
+                        if((ptr->rc)!=NULL)
+                                push(ptr->rc);
+                        push(ptr);
+                        ptr=ptr->lc;
+                }
+                else
+                {
+                        ptr=pop();
+                        if((ptr->rc)==NULL)
+                        {
+                                if(strcmp(ptr->data,item)==0)
+                                {
+                                        printf("\nElement found");
+                                        return(ptr);
+                                }
+                                ptr=NULL;
+                        }
+                        else
+                        {
+                                if((ptr->rc)==(stack[top]))
+                                {
+                                        temp=pop();
+                                        push(ptr);
+                                        ptr=temp;
+                                }
+                                else
+                                {
+                                        if(strcmp(ptr->data,item)==0)
+                                        {
+                                                printf("\nElement found");
+ return(ptr);
+                                        }
+                                }
+
+                        }
+                }
+        }
+        printf("\nElement not found");
+        return NULL;
+}
+void *postorderitprint(NODE *root)
+{
+        NODE *ptr=root;
+        NODE *temp;
+        temp=ptr;
+        while((top!=-1)||(temp!=NULL))
+        {
+                if(ptr!=NULL)
+                {
+                        if((ptr->rc)!=NULL)
+                                push(ptr->rc);
+                        push(ptr);
+                        ptr=ptr->lc;
+                        temp=ptr;
+                }
+                else
+                {
+                        ptr=pop();
+                        temp=ptr;
+                        if((ptr->rc)==NULL)
+                        {
+                                printf("%s ",ptr->data);
+                                ptr=NULL;
+                                temp=NULL;
+                        }
+                        else
+                        {
+                                if((ptr->rc)==(stack[top]))
+                                {
+                                        temp=pop();
+                                        push(ptr);
+                                        ptr=temp;
+                                }
+                                else
+                                {                                                                                      printf("%s ",ptr->data);
+                                }
+                                temp=NULL;
+                        }
+                }
+        }
+}
+void postorderprint(NODE *root)
+{
+        NODE *ptr=root;
+        if(ptr!=NULL)
+        {
+                postorderprint(ptr->lc);
+                postorderprint(ptr->rc);
+                printf("%s ",ptr->data);
+        }
+}
+
+void main()
+{
+        NODE *ROOT=(NODE*)malloc(sizeof(NODE));
+        char item[10],key[10];int ch;
+        printf("\nEnter the value of the root node ");
+        scanf("%s",item);
+        build(ROOT,item);
+        while(1)
+        {
+                printf("\nPress\n1.Insert a node into the tree");
+                printf("\n2.Search for a node");
+                printf("\n3.Display the elements of the tree");
+                printf("\n4.Exit\n");
+                scanf("%d",&ch);
+                if(ch==1)
+                {
+                        printf("\nEnter the item to be inserted ");
+                        scanf("%s",item);
+                        printf("Enter the key afterwhich it is tobe inserted ");
+                        scanf("%s",key);
+                        insert(ROOT,key,item);
+                }
+                else if(ch==2)
+                {
+                        printf("Enter the element to be searched for ");
+                        scanf("%s",item);
+                        preordersearch(ROOT,item);
+                }
+                else if(ch==3)
+                {
+                        printf("Press\n1.Preorder\n2.Inorder\n3.Postorder\n");
+                        scanf("%d",&ch);
+                        printf("\n");
+                        if(ch==1)
+                                preorderprint(ROOT);
+                        else if(ch==2)
+                                inorderprint(ROOT);
+                        else if(ch==3)
+                                postorderitprint(ROOT);
+                        else
+                                printf("Wrong Input");
+                }
+                else if(ch==4)
+                        exit(0);
+                else
+                        printf("\nWrong input");
+        }
+}
+
